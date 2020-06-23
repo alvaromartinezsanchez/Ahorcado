@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css"
+        integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+    <link type="text/css" href="estilos.css" rel="stylesheet">
+    <title>Ahorcado</title>
+    <script>
+        var arrayPalabras = ["manzana", "naranja", "sandias", "platano", "francia"];
+        //Almacena la palabra seleccionada aleatoriamente dividia en letras
+        var palabraEnLetras = [];
+        //Almacena la palabra que ve el usuario,con tantos guiones como letras tiene la palabra Seleccionada
+        var palabraGuiones = [];
+        //Almacena el numero de intentos por defecto 3
+        var numIntentos = 3;
+        //Almacenamos el numero de fallos
+        var numFallos = 0;
+        //Tiradas de dado por turno
+        var tiradas = 0;
+        var palabracargada=0;
+
+
+        
+        //Cargamos la palabra aleatoria y palabra con guiones
+        function cargarPalabra() {
+            palabracargada=1;
+            //Reseteamos las imagenes
+            document.getElementById("image0").style.display = "block";
+            document.getElementById("image1").style.display = "none";
+            document.getElementById("image2").style.display = "none";
+            document.getElementById("image3").style.display = "none";
+            //Creamos numero aleatorio
+            var indiceAleatorio = Math.floor((Math.random() * 5));
+            var palabraSeleccionada = arrayPalabras[indiceAleatorio];
+            //Reiniciamos el valor de los guiones
+            palabraGuiones = [];
+            numIntentos = 3;
+            numFallos = 0;
+            palabraEnLetras = palabraSeleccionada.split('');
+            //creamos array con palabra a mostrar (almacenara guiones que luego cambiaremos por las letras de la palabra seleccionada)
+            for (let letra of palabraEnLetras) {
+                palabraGuiones.push('_');
+            }
+            ActualizarValores();
+        }
+
+        //Actualizamos los valores
+        function ActualizarValores() {
+            document.getElementById("intentos").innerHTML = numIntentos;
+            document.getElementById("palabraGuiones").innerHTML = palabraGuiones.join(' ');
+        }
+
+        //comprobamos si la letra introducida es correcta
+        function comprobarLetra() {
+            if(palabracargada==1){
+            var acierto = 0;
+            var gana = 0;
+            tiradas = 0;
+            //almacenamos el valor de la letra introducida
+            letraIntroducida = document.getElementById("letra").value;
+            //Recorremos la palabra Seleccionada
+            for (let c = 0; c < palabraGuiones.length; c++) {
+                //Si coincide la letra introducida con una letra de la palabra seleccionada
+                if (palabraEnLetras[c] == letraIntroducida) {
+                    //Realizamos el cambio de guion a su letra correspondiente
+                    palabraGuiones[c] = letraIntroducida;
+                    acierto = 1;
+                }
+            }
+            ActualizarValores();
+            //Falla
+            //Si recorremos la palabra y no se encuentra la letra introducida aumentamos los fallos y disminuimos el numero de intentos
+            if (acierto == 0) {
+                numFallos++;
+                console.log(numFallos);
+                numIntentos--;
+                var anterior = numFallos - 1;
+                document.getElementById("image" + anterior).style.display = "none";
+                document.getElementById("image" + numFallos).style.display = "block";
+                ActualizarValores();
+
+            }
+            //Pierde
+            if (numIntentos == 0) {
+                alert("El juego ha terminado");
+            }
+            //(no quedan guiones)
+            for (let c = 0; c < palabraGuiones.length; c++) {
+                //Si hay un guion
+                if (palabraGuiones[c] == "_") {
+                    gana = 1;
+                }
+
+            }
+            //GAna
+            if (gana == 0) {
+                var nombre = prompt('Has Ganado..!!!! Introduce tu nombre', "");
+                var parrafoGanador = document.createElement("p");
+                var ganador = document.createTextNode(nombre + " Fallos-->" + numFallos);
+                parrafoGanador.appendChild(ganador);
+                var element = document.getElementById("historial");
+                element.appendChild(parrafoGanador);
+                cargarPalabra();
+            }
+
+
+            //Borramos letra introducida
+            document.getElementById("letra").value = "";
+            ActualizarValores();
+        }
+        }
+
+        //funcion tirar dado vida extra
+        function tirarDado() {
+            //
+            if (tiradas == 0) {
+                //Obtenemos numero del 1 al 6
+                var tiraDado = Math.floor((Math.random() * 6) + 1);
+                console.log("Resultado tirada-->" + tiraDado);
+                //Si sale un 6 realizamos cambios
+                if (tiraDado == 6) {
+                    var anterior2 = numFallos - 1;
+                    //Retrocedemos las imagenes 
+                    document.getElementById("image" + anterior2).style.display = "block";
+                    document.getElementById("image" + numFallos).style.display = "none";
+                    //cambiamos intentos y fallos
+                    numIntentos = numIntentos + 1;
+                    numFallos = numFallos - 1;
+                    ActualizarValores();
+                }
+                tiradas = 1;
+            }
+
+        }
+
+
+
+
+    </script>
+</head>
+
+<body>
+    <div class="container">
+        <div class="row">
+            <div class="col-4">
+                <div class="row">
+                    <div class="col-12">
+                        <h2>Intentos</h2>
+                        <div id="intentos"></div>
+                    </div>
+                    <div class="col-12">
+                        <h2>Historial</h2>
+                        <div id="historial"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-8">
+                <div class="row justify-content-center">
+                    <h1 class="col-10">El juego del Ahorcado</h1>
+                </div>
+                <div class="row justify-content-center">
+
+                    <picture class="col-6 my-3">
+                        <img src="img/ahorcado_3.png" alt="" id="image3" style="display: none;">
+                        <img src="img/ahorcado_2.png" alt="" id="image2" style="display: none;">
+                        <img src="img/ahorcado_1.png" alt="" id="image1" style="display: none;">
+                        <img src="img/ahorcado_0.png" alt="" id="image0" style="display: block;">
+                    </picture>
+                </div>
+                <div class="row justify-content-center">
+                    <div id="palabraGuiones" class="col-6 mb-2" style="font-size: 50px;"></div>
+                    <input id="letra" type="text" placeholder="Introduce una letra" maxlength="1" class="col-8 mb-5">
+                </div>
+
+                <div class="row justify-content-center py-2">
+                    <button id="boton" onclick="comprobarLetra()" class="btn btn-outline-danger">Comprobar</button>
+                    <button onclick="cargarPalabra()" class="btn btn-outline-info">CargarPalabra</button>
+                    <button onclick="tirarDado()" class="btn btn-outline-success">Vida extra</button>
+                </div>
+            </div>
+        </div>
+
+
+        
+
+
+    </div>
+
+
+
+    <script src="https://code.jquery.com/jquery-3.4.1.slim.min.js"
+        integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n"
+        crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"
+        integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo"
+        crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js"
+        integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6"
+        crossorigin="anonymous"></script>
+</body>
+
+</html>
